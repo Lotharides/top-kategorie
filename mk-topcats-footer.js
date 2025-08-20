@@ -1,7 +1,6 @@
 /*! mk-topcats-footer.js */
-(function(){
-  if (window.mkTopcatsMounted) return;
-  window.mkTopcatsMounted = true;
+(function () {
+  if (document.querySelector('.mk-topcats')) return; // neduplikuj
 
   var css = `
   .mk-topcats{width:100%;margin:18px 0;padding:0 12px;font-family:Arial,Helvetica,sans-serif}
@@ -30,27 +29,27 @@
     </div>
   </section>`;
 
-  function bannerRow(){
-    // 1. priamo riadok s bannerom
+  function styleOnce(){
+    if (document.getElementById('mk-topcats-style')) return;
+    var st = document.createElement('style'); st.id='mk-topcats-style'; st.textContent = css; document.head.appendChild(st);
+  }
+
+  function findBannerRow(){
     var row = document.querySelector('.row.banners-row');
     if (row) return row;
-    // 2. najdi karusel a vystúp na riadok
-    var el = document.querySelector('#carousel, .carousel.slide, .carousel-inner, .extended-banner');
-    if (el) return el.closest('.row') || el.parentElement;
+    var el = document.querySelector('#carousel') || document.querySelector('.carousel.slide') || document.querySelector('.extended-banner');
+    if (el && el.closest) return el.closest('.row') || el.parentElement;
     return null;
   }
 
   function mount(){
-    // CSS
-    var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
-
-    var row = bannerRow();
-    if (row){ row.insertAdjacentHTML('afterend', html); return; }
-
-    // čakaj na banner max ~5s, potom fallback
+    styleOnce();
+    var row = findBannerRow();
+    if (row) { row.insertAdjacentHTML('afterend', html); return; }
+    // čakaj na banner max 5s, potom fallback
     var waited = 0, step = 200, max = 5000;
     var t = setInterval(function(){
-      var r = bannerRow();
+      var r = findBannerRow();
       if (r){ r.insertAdjacentHTML('afterend', html); clearInterval(t); return; }
       waited += step;
       if (waited >= max){
@@ -61,6 +60,6 @@
     }, step);
   }
 
-  if (document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', mount); }
-  else { mount(); }
+  if (document.readyState === 'complete') mount();
+  else window.addEventListener('load', mount);
 })();
