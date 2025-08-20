@@ -31,19 +31,31 @@
       </div>
     </section>`;
 
-    function mount(){
+    function inject() {
       var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
 
-      // nájdi banner/slider na homepage
-      var banner = document.querySelector('.hp-slider, .homepage-banners, .banner-slider, .hero, .banners, .slider, #banner, .box.banners');
+      // dočasne hore v obsahu
+      var wrap = document.querySelector('#content .content-inner, .content-inner, main, #content') || document.body;
+      wrap.insertAdjacentHTML('afterbegin', html);
 
-      if (banner) {
-        banner.insertAdjacentHTML('afterend', html);         // vlož hneď pod banner
-      } else {
-        var wrap = document.querySelector('#content .content-inner, .content-inner, main, #content') || document.body;
-        wrap.insertAdjacentHTML('afterbegin', html);         // fallback hore v obsahu
-      }
+      // presuň POD banner keď sa objaví
+      var tries = 0, max = 30;
+      var timer = setInterval(function(){
+        tries++;
+        var banner = document.querySelector('.hp-slider, .homepage-banners, .banner-slider, .hero, .banners, .slider, #banner, .box.banners');
+        var block = document.querySelector('.mk-topcats');
+        if (banner && block) {
+          banner.parentNode.insertBefore(block, banner.nextSibling);
+          clearInterval(timer);
+        }
+        if (tries >= max) clearInterval(timer);
+      }, 200);
     }
-    if (document.readyState==='loading'){document.addEventListener('DOMContentLoaded', mount);} else {mount();}
+
+    if (document.readyState==='loading') {
+      document.addEventListener('DOMContentLoaded', inject);
+    } else {
+      inject();
+    }
   }catch(e){}
 })();
