@@ -1,7 +1,8 @@
 /*! mk-topcats-footer.js */
 (function(){
   try{
-    if (document.querySelector('.mk-topcats')) return;
+    if (window.mkTopcatsMounted) return;
+    window.mkTopcatsMounted = true;
 
     var css = `
     .mk-topcats{width:100%;margin:18px 0;padding:0 12px;font-family:Arial,Helvetica,sans-serif}
@@ -9,8 +10,7 @@
     .mk-tc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:14px}
     @media (min-width:600px){.mk-tc-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:16px}}
     @media (min-width:1024px){.mk-tc-grid{grid-template-columns:repeat(6,minmax(0,1fr)) !important;gap:18px}}
-    .mk-tc{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid #e7e2db;border-radius:14px;background:#fff;
-           text-decoration:none;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .15s,box-shadow .15s}
+    .mk-tc{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid #e7e2db;border-radius:14px;background:#fff;text-decoration:none;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .15s,box-shadow .15s}
     .mk-tc:hover{box-shadow:0 6px 18px rgba(0,0,0,.10);transform:translateY(-2px)}
     .mk-tc img{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#f6efe9;flex:0 0 auto}
     .mk-tc span{font-weight:700;font-size:clamp(14px,1.8vw,16px);line-height:1.25}
@@ -33,13 +33,12 @@
 
     function mount(){
       var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
-      var anchor = document.getElementById('mk-topcats-anchor')
-                || document.querySelector('#content .content-inner, .content-inner')
-                || document.querySelector('#content')
-                || document.body;
-      /* vlož na ZAČIATOK obsahu, nech to určite vidíš */
-      anchor.insertAdjacentHTML('afterbegin', html);
+      var anchor =
+        document.getElementById('mk-topcats-anchor') ||
+        document.querySelector('#content .content-inner, .content-inner, main, #content') ||
+        document.body;
+      anchor.insertAdjacentHTML('beforeend', html);
     }
     if (document.readyState==='loading'){document.addEventListener('DOMContentLoaded', mount);} else {mount();}
-  }catch(e){ console && console.error && console.error('mk-topcats error', e); }
+  }catch(e){}
 })();
