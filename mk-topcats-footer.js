@@ -33,11 +33,16 @@
 
     function mount(){
       var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
-      var anchor =
-        document.getElementById('mk-topcats-anchor') ||
-        document.querySelector('#content .content-inner, .content-inner, main, #content') ||
-        document.body;
-      anchor.insertAdjacentHTML('beforeend', html);
+
+      // nájdi banner/slider na homepage
+      var banner = document.querySelector('.hp-slider, .homepage-banners, .banner-slider, .hero, .banners, .slider, #banner, .box.banners');
+
+      if (banner) {
+        banner.insertAdjacentHTML('afterend', html);         // vlož hneď pod banner
+      } else {
+        var wrap = document.querySelector('#content .content-inner, .content-inner, main, #content') || document.body;
+        wrap.insertAdjacentHTML('afterbegin', html);         // fallback hore v obsahu
+      }
     }
     if (document.readyState==='loading'){document.addEventListener('DOMContentLoaded', mount);} else {mount();}
   }catch(e){}
