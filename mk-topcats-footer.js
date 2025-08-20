@@ -30,43 +30,37 @@
     </div>
   </section>`;
 
-  function findBanner(){
-    var sels = [
-      '.hp-slider','.homepage-banners','.banner-slider','.hero','.banners',
-      '.slider','#banner','#hp-slider','.box.banners','.homepage-slider'
-    ];
-    for (var i=0;i<sels.length;i++){
-      var el = document.querySelector(sels[i]);
-      if (el) return el;
-    }
+  function bannerRow(){
+    // 1. priamo riadok s bannerom
+    var row = document.querySelector('.row.banners-row');
+    if (row) return row;
+    // 2. najdi karusel a vystúp na riadok
+    var el = document.querySelector('#carousel, .carousel.slide, .carousel-inner, .extended-banner');
+    if (el) return el.closest('.row') || el.parentElement;
     return null;
   }
 
-  function mountBelowBanner(){
+  function mount(){
+    // CSS
     var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
-    var banner = findBanner();
-    if (banner){
-      banner.insertAdjacentHTML('afterend', html);
-      return true;
-    }
-    return false;
-  }
 
-  function waitAndMount(){
-    var waited = 0, step = 150, max = 4500; // čakaj max ~4.5s na banner
+    var row = bannerRow();
+    if (row){ row.insertAdjacentHTML('afterend', html); return; }
+
+    // čakaj na banner max ~5s, potom fallback
+    var waited = 0, step = 200, max = 5000;
     var t = setInterval(function(){
-      if (mountBelowBanner()){ clearInterval(t); }
+      var r = bannerRow();
+      if (r){ r.insertAdjacentHTML('afterend', html); clearInterval(t); return; }
       waited += step;
       if (waited >= max){
         clearInterval(t);
-        // fallback: vlož na začiatok obsahu, aby sa aspoň zobrazilo
-        var wrap = document.querySelector('#content .content-inner, .content-inner, main, #content') || document.body;
-        var st2=document.createElement('style'); st2.textContent=css; document.head.appendChild(st2);
-        wrap.insertAdjacentHTML('afterbegin', html);
+        (document.querySelector('#content .content-inner, .content-inner, main, #content') || document.body)
+          .insertAdjacentHTML('afterbegin', html);
       }
     }, step);
   }
 
-  if (document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', waitAndMount); }
-  else { waitAndMount(); }
+  if (document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', mount); }
+  else { mount(); }
 })();
