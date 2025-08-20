@@ -1,18 +1,24 @@
 /*! mk-topcats-footer.js */
 (function () {
-  if (document.querySelector('.mk-topcats')) return; // neduplikuj
+  if (document.querySelector('.mk-topcats')) return;
 
   var css = `
   .mk-topcats{width:100%;margin:18px 0;padding:0 12px;font-family:Arial,Helvetica,sans-serif}
   .mk-tc-title{margin:0 0 14px;text-align:center;font-weight:800;color:#4b3627;font-size:clamp(20px,2.6vw,28px)}
   .mk-tc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:14px}
-  @media (min-width:600px){.mk-tc-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:16px}}
-  @media (min-width:1024px){.mk-tc-grid{grid-template-columns:repeat(6,minmax(0,1fr)) !important;gap:18px}}
-  .mk-tc{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid #e7e2db;border-radius:14px;background:#fff;text-decoration:none;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .15s,box-shadow .15s}
+  @media (min-width:600px){.mk-tc-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:18px}}
+  /* PC: 3 stĺpce, väčšie karty */
+  @media (min-width:1024px){
+    .mk-tc-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:22px}
+    .mk-tc{padding:21px}
+    .mk-tc img{width:75px;height:75px}
+    .mk-tc span{font-size:18px}
+  }
+  .mk-tc{display:flex;align-items:center;gap:12px;min-width:0;padding:12px;border:1px solid #e7e2db;border-radius:14px;background:#fff;
+         text-decoration:none;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .15s,box-shadow .15s}
   .mk-tc:hover{box-shadow:0 6px 18px rgba(0,0,0,.10);transform:translateY(-2px)}
   .mk-tc img{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#f6efe9;flex:0 0 auto}
   .mk-tc span{font-weight:700;font-size:clamp(14px,1.8vw,16px);line-height:1.25}
-  @media (min-width:1024px){.mk-tc{padding:14px}.mk-tc img{width:50px;height:50px}}
   .mk-tc img[src=""], .mk-tc img:not([src]){display:none}
   `;
 
@@ -31,13 +37,13 @@
 
   function styleOnce(){
     if (document.getElementById('mk-topcats-style')) return;
-    var st = document.createElement('style'); st.id='mk-topcats-style'; st.textContent = css; document.head.appendChild(st);
+    var st=document.createElement('style'); st.id='mk-topcats-style'; st.textContent=css; document.head.appendChild(st);
   }
 
   function findBannerRow(){
     var row = document.querySelector('.row.banners-row');
     if (row) return row;
-    var el = document.querySelector('#carousel') || document.querySelector('.carousel.slide') || document.querySelector('.extended-banner');
+    var el = document.querySelector('#carousel, .carousel.slide, .extended-banner, .carousel-inner');
     if (el && el.closest) return el.closest('.row') || el.parentElement;
     return null;
   }
@@ -45,21 +51,21 @@
   function mount(){
     styleOnce();
     var row = findBannerRow();
-    if (row) { row.insertAdjacentHTML('afterend', html); return; }
+    if (row){ row.insertAdjacentHTML('afterend', html); return; }
     // čakaj na banner max 5s, potom fallback
-    var waited = 0, step = 200, max = 5000;
-    var t = setInterval(function(){
-      var r = findBannerRow();
-      if (r){ r.insertAdjacentHTML('afterend', html); clearInterval(t); return; }
-      waited += step;
-      if (waited >= max){
+    var waited=0, step=200, max=5000;
+    var t=setInterval(function(){
+      var r=findBannerRow();
+      if(r){ r.insertAdjacentHTML('afterend', html); clearInterval(t); return; }
+      waited+=step;
+      if(waited>=max){
         clearInterval(t);
-        (document.querySelector('#content .content-inner, .content-inner, main, #content') || document.body)
+        (document.querySelector('#content .content-inner, .content-inner, main, #content')||document.body)
           .insertAdjacentHTML('afterbegin', html);
       }
     }, step);
   }
 
-  if (document.readyState === 'complete') mount();
+  if (document.readyState==='complete') mount();
   else window.addEventListener('load', mount);
 })();
