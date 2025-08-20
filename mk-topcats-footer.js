@@ -44,7 +44,8 @@
 
   function mount(){
     var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
-    var anchor = document.querySelector('.content-inner') || document.body;
+    var anchor = document.getElementById('mk-topcats-anchor') || document.querySelector('.content-inner') || document.body;
+
     anchor.insertAdjacentHTML('beforeend', html);
   }
   if (document.readyState==='loading'){document.addEventListener('DOMContentLoaded', mount);} else {mount();}
