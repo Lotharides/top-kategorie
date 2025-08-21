@@ -2,9 +2,9 @@
 (function () {
   if (window.mkTopcatsMounted) return;
 
-  // len homepage (/, /sk/, /cz/ alebo body.type-index)
-  var p = location.pathname;
-  var isHome = p === '/' || /^\/[a-z]{2}\/?$/i.test(p) || /\b(type-index|homepage)\b/.test(document.body.className);
+  // iba homepage: /, /sk/, /cz/ alebo body.type-index
+  var p = location.pathname.replace(/\/+$/,'/');
+  var isHome = p === '/' || /^\/(sk|cz)\/$/i.test(p) || /\b(type-index|homepage)\b/.test(document.body.className);
   if (!isHome) return;
   window.mkTopcatsMounted = true;
 
@@ -60,33 +60,23 @@
     </div>
   </section>`;
 
-  function addStyle(){
-    if (document.getElementById('mk-topcats-style')) return;
-    var s=document.createElement('style'); s.id='mk-topcats-style'; s.textContent=css; document.head.appendChild(s);
-  }
+  function addStyle(){ if(!document.getElementById('mk-topcats-style')){var s=document.createElement('style');s.id='mk-topcats-style';s.textContent=css;document.head.appendChild(s);} }
+  function contentWrap(){ return document.querySelector('#content .content-inner,.content-inner,main,#content') || document.body; }
   function bannerRow(){
     var row=document.querySelector('.row.banners-row');
     if(row) return row;
     var el=document.querySelector('#carousel,.carousel.slide,.extended-banner,.carousel-inner');
     return el&&el.closest ? (el.closest('.row')||el.parentElement):null;
   }
-  function mountAfter(row){ addStyle(); row.insertAdjacentHTML('afterend', html); }
 
-  var row = bannerRow();
-  if (row) return mountAfter(row);
+  // vlož hneď hore, potom prípadne presuň pod banner
+  addStyle();
+  var wrap = contentWrap();
+  wrap.insertAdjacentHTML('afterbegin', html);
 
-  // čakaj, ale len na homepage
-  var mo = new MutationObserver(function(){
-    var r = bannerRow();
-    if (r){ mountAfter(r); mo.disconnect(); }
-  });
-  mo.observe(document.documentElement, {childList:true, subtree:true});
-  setTimeout(function(){
-    if (!document.querySelector('.mk-topcats') ){
-      addStyle();
-      (document.querySelector('#content .content-inner,.content-inner,main,#content')||document.body)
-        .insertAdjacentHTML('afterbegin', html);
-    }
-    mo.disconnect();
-  }, 5000);
+  var tries = 0, t = setInterval(function(){
+    var row = bannerRow(), block = document.querySelector('.mk-topcats');
+    if (row && block) { row.parentNode.insertBefore(block, row.nextSibling); clearInterval(t); }
+    if (++tries > 50) clearInterval(t); // ~5s
+  }, 100);
 })();
